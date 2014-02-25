@@ -68,6 +68,8 @@ Where `options` may have the fields:
 
 - `required` - whether `/context_(id|type)/` are required fields (defaults to
   `false`)
+- `context_types` - the valid `context_type` values (defaults to all existing
+  modelNames)
 
 ## Testing
 Tests may be run with: `grunt test`.
