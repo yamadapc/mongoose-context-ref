@@ -27,6 +27,14 @@ describe('mongoose-context-ref', function() {
       comments: [mongoose.Schema.ObjectId]
     });
     info.Post = mongoose.model('Post', PostSchema);
+
+    var Comment2Schema = new mongoose.Schema({
+      text: String
+    });
+    Comment2Schema.plugin(context, {
+      context_types: ['Post']
+    });
+    info.Comment2 = mongoose.model('Comment2', Comment2Schema);
   });
 
   it('adds the context paths to the schema', function() {
@@ -34,11 +42,36 @@ describe('mongoose-context-ref', function() {
     should.exist(info.Comment.schema.path('context_type'));
   });
 
+  describe('when options.context_types is passed', function() {
+
+    it('validates `context_type` against the options', function(done) {
+      var comment = new info.Comment2({ context_type: 'Post' });
+      comment.validate(function(err) {
+        if(err) return done(err);
+        comment.context_type = 'Comment';
+        comment.validate(function(err) {
+          should.exist(err);
+          err.toString().should.match(/context type/);
+          done();
+        });
+      });
+    });
+  });
+
   describe('when a child is created', function() {
     before(function(done) {
       (new info.Post()).save(function(err, post) {
         info.post = post;
         done(err);
+      });
+    });
+
+    it('validates `context_type` agains existing models', function(done) {
+      var comment = new info.Comment({ context_type: 'asdf' });
+      comment.validate(function(err) {
+        should.exist(err);
+        err.toString().should.match(/context type/);
+        done();
       });
     });
 
