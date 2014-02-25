@@ -1,0 +1,33 @@
+{
+  "name": "mongoose-context-ref",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "description": "A mongoose plugin which adds a simple `context` or `parent` like relation between a model's document and variable model parent document",
+  "homepage": "https://github.com/yamadapc/mongoose-context-ref",
+  "bugs": "https://github.com/yamadapc/mongoose-context-ref/issues",
+  "author": {
+    "name": "Pedro Tacla Yamada",
+    "email": "tacla.yamada@gmail.com",
+    "url": "github.com/yamadapc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yamadapc/mongoose-context-ref"
+  },
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ],
+  "scripts": {
+    "test": "grunt --verbose"
+  },
+  "devDependencies": {
+    "should": "~3.1.2",
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.7.0",
+    "grunt-simple-mocha": "~0.4.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "time-grunt": "~0.2.9"
+  }
+}
