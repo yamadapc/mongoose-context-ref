@@ -18,6 +18,10 @@ name) and validating the context_id for existence.
 
 ## Examples
 
+### Install with
+
+`npm install mongoose-context-ref`
+
 ### Comments to multiple types of models
 
 ```javascript
