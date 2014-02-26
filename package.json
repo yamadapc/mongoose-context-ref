@@ -1,6 +1,6 @@
 {
   "name": "mongoose-context-ref",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "lib/index.js",
   "description": "A mongoose plugin which adds a simple `context` or `parent` like relation between a model's document and variable model parent document",
   "homepage": "https://github.com/yamadapc/mongoose-context-ref",
