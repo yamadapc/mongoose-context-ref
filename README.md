@@ -1,5 +1,12 @@
-mongoose-context-ref [![Build Status](https://secure.travis-ci.org/yamadapc/mongoose-context-ref.png?branch=master)](http://travis-ci.org/yamadapc/mongoose-context-ref)
+mongoose-context-ref
 ====================
+
+[![Build Status](https://secure.travis-ci.org/yamadapc/mongoose-context-ref.png?branch=master)](http://travis-ci.org/yamadapc/mongoose-context-ref)
+[![Dependency Status](https://david-dm.org/yamadapc/mongoose-context-ref.png)](https://david-dm.org/yamadapc/mongoose-context-ref)
+[![devDependency Status](https://david-dm.org/yamadapc/mongoose-context-ref/dev-status.png)](https://david-dm.org/yamadapc/mongoose-context-ref#info=devDependencies)
+
+---
+
 *Mongoose context ref* is a [mongoose](https://github.com/learnboost/mongoose)
 plugin, which adds a simple `context` or `parent` like relation between a
 model's document and variable model parent document.
