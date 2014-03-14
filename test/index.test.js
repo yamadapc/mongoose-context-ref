@@ -76,6 +76,18 @@ describe('mongoose-context-ref', function() {
       comment.context_id.should.equal(id);
     });
 
+    describe('and virtuals is set to false', function() {
+      it('doesn\'t mess with the schema\'s paths', function() {
+        var TestSchema = new mongoose.Schema({});
+        TestSchema.plugin(context, {
+          virtuals: false,
+          context_types: ['Post']
+        });
+
+        should.not.exist(TestSchema.virtualpath('post'));
+      });
+    });
+
     describe('and it\'s a function', function() {
       it('validates `context_types` by calling it as a predicate', function(done) {
         var comment = new info.Comment3({ context_type: 'Comment' });
