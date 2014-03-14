@@ -88,6 +88,22 @@ describe('mongoose-context-ref', function() {
       });
     });
 
+    describe('and some of the `context_types`\' corresponding paths exist', function() {
+      it('ignores them', function() {
+        var TestSchema = new mongoose.Schema({
+          banana: mongoose.Schema.ObjectId,
+          post: mongoose.Schema.ObjectId
+        });
+        TestSchema.plugin(context, {
+          context_types: ['Post', 'Banana', 'Something']
+        });
+
+        should.not.exist(TestSchema.virtualpath('banana'));
+        should.not.exist(TestSchema.virtualpath('post'));
+        should.exist(TestSchema.virtualpath('something'));
+      });
+    });
+
     describe('and it\'s a function', function() {
       it('validates `context_types` by calling it as a predicate', function(done) {
         var comment = new info.Comment3({ context_type: 'Comment' });
