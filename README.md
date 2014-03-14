@@ -75,8 +75,9 @@ Where `options` may have the fields:
 
 - `required` - whether `/context_(id|type)/` are required fields (defaults to
   `false`)
-- `context_types` - the valid `context_type` values (defaults to all existing
-  modelNames)
+- `context_types` - either an `Array` of the valid `context_type` values
+  (defaulting to all existing modelNames) or a validator `Function`, which
+  will be passed directly as the `context_type` path's [mongoose validator](http://mongoosejs.com/docs/api.html#schematype_SchemaType-validate).
 
 ## Testing
 Tests may be run with: `grunt test`.
