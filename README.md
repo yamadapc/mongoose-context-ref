@@ -120,7 +120,7 @@ Where `options` may have the fields:
 - `context_types` - either an `Array` of the valid `context_type` values
   (defaulting to all existing modelNames) or a validator `Function`, which
   will be passed directly as the `context_type` path's [mongoose validator](http://mongoosejs.com/docs/api.html#schematype_SchemaType-validate).
-- `virtuals` - if set to false disables the [virtuals](#Virtuals) feature
+- `virtuals` - if set to false disables the [virtuals](#virtuals) feature
   (defaults to true)
 
 ## Testing
