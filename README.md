@@ -61,6 +61,48 @@ referenced document will have the newly created comment's id pushed into its
 Analogously, when it's removed, its reference will be removed from its context's
 `comments` Array.
 
+## Virtuals
+
+By default, if a `context_types` array is passed, *mongoose-context-ref* adds
+virtuals for all contexts, which update the context fields and work as one would
+expect:
+
+```
+var mongoose = require('mongoose'),
+    context  = require('mongoose-context-ref');
+
+var CommentSchema = new mongoose.Schema({
+  text: String,
+  comments: [mongoose.Schema.ObjectId]
+});
+
+CommentSchema.plugin(context, { context_types: ['Post', 'Comment'] })
+
+var Comment = mongoose.model('Comment', CommentSchema);
+
+var comment = new Comment();
+comment.post = new mongoose.Types.ObjectId(); // => ObjectId("532280b6fed4c6f00d0dce60")
+// this sets:
+comment.context_type // => 'Post'
+comment.context_id   // => ObjectId("532280b6fed4c6f00d0dce60")
+
+comment.comment = new mongoose.Types.ObjectId(); // => ObjectId("532280fcfed4c6f00d0dce61");
+// this sets
+comment.context_type // => 'Comment'
+comment.context_id   // => ObjectId("532280fcfed4c6f00d0dce61")
+
+// .... you get the point
+// ----------------------------------------------------------------------------
+// also:
+var comment2 = new Comment({
+  context_type: 'Post',
+  context_id: '532280fcfed4c6f00d0dce63'
+});
+
+comment2.post    // => ObjectId("532280fcfed4c6f00d0dce63")
+comment2.comment // => undefined
+```
+
 ## Options
 
 As per mongoose plugins' convention, the plugin is added to a Model with:
@@ -78,6 +120,8 @@ Where `options` may have the fields:
 - `context_types` - either an `Array` of the valid `context_type` values
   (defaulting to all existing modelNames) or a validator `Function`, which
   will be passed directly as the `context_type` path's [mongoose validator](http://mongoosejs.com/docs/api.html#schematype_SchemaType-validate).
+- `virtuals` - if set to false disables the [virtuals](#Virtuals) feature
+  (defaults to true)
 
 ## Testing
 Tests may be run with: `grunt test`.
