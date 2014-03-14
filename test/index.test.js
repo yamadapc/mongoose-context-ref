@@ -17,7 +17,6 @@ describe('mongoose-context-ref', function() {
 
   before(function() {
     var CommentSchema = new mongoose.Schema({
-      text:     String,
       comments: [mongoose.Schema.ObjectId]
     });
     CommentSchema.plugin(context);
@@ -28,13 +27,17 @@ describe('mongoose-context-ref', function() {
     });
     info.Post = mongoose.model('Post', PostSchema);
 
-    var Comment2Schema = new mongoose.Schema({
-      text: String
-    });
+    var Comment2Schema = new mongoose.Schema({});
     Comment2Schema.plugin(context, {
       context_types: ['Post']
     });
     info.Comment2 = mongoose.model('Comment2', Comment2Schema);
+
+    var Comment3Schema = new mongoose.Schema({});
+    Comment3Schema.plugin(context, {
+      context_types: function(ct) { return ct && (ct.charAt(0) !== 'C'); }
+    });
+    info.Comment3 = mongoose.model('Comment3', Comment3Schema);
   });
 
   it('adds the context paths to the schema', function() {
@@ -43,7 +46,6 @@ describe('mongoose-context-ref', function() {
   });
 
   describe('when options.context_types is passed', function() {
-
     it('validates `context_type` against the options', function(done) {
       var comment = new info.Comment2({ context_type: 'Post' });
       comment.validate(function(err) {
@@ -53,6 +55,18 @@ describe('mongoose-context-ref', function() {
           should.exist(err);
           err.toString().should.match(/context type/);
           done();
+        });
+      });
+    });
+
+    describe('and it\'s a function', function() {
+      it('validates `context_types` by calling it as a predicate', function(done) {
+        var comment = new info.Comment3({ context_type: 'Comment' });
+        comment.validate(function(err) {
+          should.exist(err);
+          err.toString().should.match(/context type/);
+          comment.context_type = 'Post';
+          comment.validate(done);
         });
       });
     });
