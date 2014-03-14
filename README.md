@@ -67,7 +67,7 @@ By default, if a `context_types` array is passed, *mongoose-context-ref* adds
 virtuals for all contexts, which update the context fields and work as one would
 expect:
 
-```
+```javascript
 var mongoose = require('mongoose'),
     context  = require('mongoose-context-ref');
 
