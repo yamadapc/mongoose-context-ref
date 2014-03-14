@@ -59,6 +59,23 @@ describe('mongoose-context-ref', function() {
       });
     });
 
+    it('adds getters for the expected context_types\' paths', function() {
+      var comment = new info.Comment2({
+        context_type: 'Post',
+        context_id: new mongoose.Types.ObjectId()
+      });
+      comment.should.have.property('post');
+      comment.post.should.equal(comment.context_id);
+    });
+
+    it('adds setters for the expected context_types\' paths', function() {
+      var comment = new info.Comment2();
+      var id = new mongoose.Types.ObjectId();
+      comment.post = id;
+      comment.context_type.should.equal('Post');
+      comment.context_id.should.equal(id);
+    });
+
     describe('and it\'s a function', function() {
       it('validates `context_types` by calling it as a predicate', function(done) {
         var comment = new info.Comment3({ context_type: 'Comment' });
