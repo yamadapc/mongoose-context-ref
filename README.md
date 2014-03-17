@@ -122,6 +122,8 @@ Where `options` may have the fields:
   will be passed directly as the `context_type` path's [mongoose validator](http://mongoosejs.com/docs/api.html#schematype_SchemaType-validate).
 - `virtuals` - if set to false disables the [virtuals](#virtuals) feature
   (defaults to true)
+- `refUpdate` - if set to false disables the [reference updating](#comments-to-multiple-types-of-models)
+  feature. (defaults to true)
 
 ## Testing
 Tests may be run with: `grunt test`.
