@@ -45,6 +45,17 @@ describe('mongoose-context-ref', function() {
     should.exist(info.Comment.schema.path('context_type'));
   });
 
+  describe('when options.refUpdate (as false) is passed', function() {
+    it('shouldn\'t add the ref-update hooks', function() {
+      var schema = new mongoose.Schema({});
+      schema.plugin(context, { refUpdate: false });
+      schema.callQueue.forEach(function(q) {
+        q.should.not.include('pre');
+        q.should.not.include('post');
+      });
+    });
+  });
+
   describe('when options.context_types is passed', function() {
     it('validates `context_type` against the options', function(done) {
       var comment = new info.Comment2({ context_type: 'Post' });
