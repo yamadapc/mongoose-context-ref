@@ -58,6 +58,10 @@ When it's saved, this reference will be validated, and the
 referenced document will have the newly created comment's id pushed into its
 `comments` Array.
 
+Also, when its context is modified (either the `context_type` or `context_id`),
+the references will be updated. In this case, the old context's reference will be
+removed, and a new reference will be added to the new parent.
+
 Analogously, when it's removed, its reference will be removed from its context's
 `comments` Array.
 
