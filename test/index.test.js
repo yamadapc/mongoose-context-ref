@@ -136,7 +136,7 @@ describe('mongoose-context-ref', function() {
       });
     });
 
-    it('validates `context_type` agains existing models', function(done) {
+    it('validates `context_type` against existing models', function(done) {
       var comment = new info.Comment({ context_type: 'asdf' });
       comment.validate(function(err) {
         should.exist(err);
