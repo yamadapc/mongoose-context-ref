@@ -145,6 +145,19 @@ describe('mongoose-context-ref', function() {
       });
     });
 
+    it('validates `context_id` existence', function(done) {
+      var comment = new info.Comment({
+        context_type: 'Post',
+        context_id: new mongoose.Types.ObjectId()
+      });
+
+      comment.save(function(err) {
+        should.exist(err);
+        err.message.should.match(/Post not found/);
+        done();
+      });
+    });
+
     it('updates its parent\'s child references', function(done) {
       var comment = new info.Comment({
         context_id: info.post._id,
