@@ -1,4 +1,4 @@
-'use strict'; /* global describe, it, before */
+'use strict'; /* global describe, it, before, after */
 /**
  * Dependencies
  * --------------------------------------------------------------------------*/
@@ -176,6 +176,66 @@ describe('mongoose-context-ref', function() {
           _.invoke(post.comments, 'toString').should.include(comment.id);
           done();
         });
+      });
+    });
+  });
+
+  describe('when the child changes', function() {
+    before(function() {
+      var ChangeFirstParentSchema = new mongoose.Schema({
+        comments: [mongoose.Schema.ObjectId]
+      });
+
+      info.ChangeFirstParent = mongoose.model('ChangeFirstParent',
+                                              ChangeFirstParentSchema);
+
+      var ChangeSecondParentSchema = new mongoose.Schema({
+        comments: [mongoose.Schema.ObjectId]
+      });
+
+      info.ChangeSecondParent = mongoose.model('ChangeSecondParent',
+                                               ChangeSecondParentSchema);
+    });
+
+    before(function(done) {
+      new info.ChangeFirstParent().save(function(err, doc) {
+        info.first_parent = doc;
+        done(err);
+      });
+    });
+
+    before(function(done) {
+      new info.ChangeSecondParent().save(function(err, doc) {
+        info.second_parent = doc;
+        done(err);
+      });
+    });
+
+    before(function(done) {
+      new info.Comment({
+        context_type: 'ChangeFirstParent',
+        context_id: info.first_parent._id
+      }).save(function(err, comment) {
+        if(err) return done(err);
+        info.change_comment = comment;
+
+        comment.context_type = 'ChangeSecondParent';
+        comment.context_id = info.second_parent._id;
+        comment.save(done);
+      });
+    });
+
+    after(function(done) {
+      info.change_comment.remove(done);
+    });
+
+    it('removes its first parent\'s child reference', function(done) {
+      info.ChangeFirstParent.findById(info.first_parent._id, function(err, doc) {
+        if(err) return done(err);
+        should.exist(doc);
+        _.invoke(doc.comments, 'toString')
+          .should.not.include(info.change_comment.id);
+        done();
       });
     });
   });
