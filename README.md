@@ -107,6 +107,24 @@ comment2.post    // => ObjectId("532280fcfed4c6f00d0dce63")
 comment2.comment // => undefined
 ```
 
+## Serialization
+
+By default, `mongoose-context-ref` overwrites the `.toJSON` method, with a
+version which serializes the document, by merging its `context_type` and
+`context_id` fields. This may be turned off by setting `serialization` option to
+false.
+
+```javascript
+var comment = new Comment({
+  post: '532280fcfed4c6f00d0dce63'
+});
+
+comment.toJSON()
+// => { post: ObjectId("532280fcfed4c6f00d0dce63"), _id: ObjectId(...
+comment.toObject()
+// => { context_type: 'Post', context_id: ObjectId(...
+```
+
 ## Options
 
 As per mongoose plugins' convention, the plugin is added to a Model with:
@@ -128,6 +146,9 @@ Where `options` may have the fields:
   (defaults to true)
 - `refUpdate` - if set to false disables the [reference updating](#comments-to-multiple-types-of-models)
   feature. (defaults to true)
+- `camel_case` - if set to true this will make serialization, reference paths
+  and virtual properties use camel case, instead of snake case.
+- `serialization` - if set to false disables the [serialization feature](#Serialization)
 
 ## Testing
 Tests may be run with: `grunt test`.
