@@ -29,7 +29,8 @@ describe('mongoose-context-ref', function() {
 
     var Comment2Schema = new mongoose.Schema({});
     Comment2Schema.plugin(context, {
-      context_types: ['Post']
+      context_types: ['Post'],
+      serialize: false
     });
     info.Comment2 = mongoose.model('Comment2', Comment2Schema);
 
@@ -43,6 +44,75 @@ describe('mongoose-context-ref', function() {
   it('adds the context paths to the schema', function() {
     should.exist(info.Comment.schema.path('context_id'));
     should.exist(info.Comment.schema.path('context_type'));
+  });
+
+  describe('.toJSON', function() {
+    var called = false;
+
+    before(function() {
+      var schema = new mongoose.Schema({});
+      schema.methods.toJSON = function() {
+        called = true; return this.toObject();
+      };
+      schema.plugin(context, {});
+
+      info.ToJsonChild = mongoose.model('ToJsonChild', schema);
+    });
+
+    before(function() {
+      var schema = new mongoose.Schema({});
+      schema.plugin(context, {
+        camel_case: true
+      });
+
+      info.ToJsonChild2 = mongoose.model('ToJsonChild2', schema);
+    });
+
+    it('doesn\'t overwrite existing modifications to `.toJSON`', function() {
+      var doc = new info.ToJsonChild();
+      doc.toJSON();
+      called.should.equal(true);
+    });
+
+    it('serializes the `context_type` and `context_id`', function() {
+      var id = new mongoose.Types.ObjectId();
+      var doc = new info.ToJsonChild({
+        context_type: 'FunnyCased',
+        context_id: id
+      });
+
+      doc.toJSON().should.eql({
+        funny_cased: id,
+        _id: doc._id
+      });
+    });
+
+    it('doesn\'t do anything if the `serialize` option is set to false', function() {
+      var id = new mongoose.Types.ObjectId();
+      var doc = new info.Comment2({
+        context_type: 'FunnyCased',
+        context_id: id
+      });
+
+      doc.toJSON().should.eql({
+        context_type: 'FunnyCased',
+        context_id: id,
+        _id: doc._id
+      });
+    });
+
+    it('serializes with camel case if specified', function() {
+      var id = new mongoose.Types.ObjectId();
+      var doc = new info.ToJsonChild2({
+        context_type: 'WeirdUpperCase',
+        context_id: id
+      });
+
+      doc.toJSON().should.eql({
+        weirdUpperCase: id,
+        _id: doc._id
+      });
+    });
   });
 
   describe('when options.refUpdate (as false) is passed', function() {
