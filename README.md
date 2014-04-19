@@ -111,7 +111,7 @@ comment2.comment // => undefined
 
 By default, `mongoose-context-ref` overwrites the `.toJSON` method, with a
 version which serializes the document, by merging its `context_type` and
-`context_id` fields. This may be turned off by setting `serialization` option to
+`context_id` fields. This may be turned off by setting `serialize` option to
 false.
 
 ```javascript
@@ -148,7 +148,7 @@ Where `options` may have the fields:
   feature. (defaults to true)
 - `camel_case` - if set to true this will make serialization, reference paths
   and virtual properties use camel case, instead of snake case.
-- `serialization` - if set to false disables the [serialization feature](#serialization)
+- `serialize` - if set to false disables the [serialization feature](#serialization)
 
 ## Testing
 Tests may be run with: `grunt test`.
