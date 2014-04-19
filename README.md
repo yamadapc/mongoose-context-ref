@@ -148,7 +148,7 @@ Where `options` may have the fields:
   feature. (defaults to true)
 - `camel_case` - if set to true this will make serialization, reference paths
   and virtual properties use camel case, instead of snake case.
-- `serialization` - if set to false disables the [serialization feature](#Serialization)
+- `serialization` - if set to false disables the [serialization feature](#serialization)
 
 ## Testing
 Tests may be run with: `grunt test`.
