@@ -1,12 +1,72 @@
-'use strict'; /* global describe, it */
-/**
+'use strict'; /* global describe, it, before */
+/*!
  * Dependencies
  * --------------------------------------------------------------------------*/
 
-var should        = require('should'),
-    serialization = require('../lib/serialization');
+var mongoose      = require('mongoose'),
+    should        = require('should'),
+    serialization = require('..').serialization;
+
+var Schema = mongoose.Schema;
 
 describe('serialization', function() {
+  it('gets exposed', function() { should.exist(serialization); });
+
+  describe('.add(schema, camel_case)', function() {
+    var called = false;
+
+    before(function() {
+      var schema = new Schema({
+        context_type: String,
+        context_id:   Schema.ObjectId
+      });
+
+      schema.methods.toJSON = function() {
+        called = true; return this.toObject();
+      };
+      serialization.add(schema, false);
+
+      this.SerializationChild1 = mongoose.model('SerializationChild1', schema);
+    });
+
+    before(function() {
+      var schema = new mongoose.Schema({
+        context_type: String,
+        context_id:   Schema.ObjectId
+      });
+
+      serialization.add(schema, true);
+
+      this.SerializationChild2 = mongoose.model('SerializationChild2', schema);
+    });
+
+    it('doesn\'t overwrite existing modifications to `.toJSON`', function() {
+      var doc = new this.SerializationChild1();
+      doc.toJSON();
+      called.should.equal(true);
+    });
+
+    it('serializes the `context_type` and `context_id`', function() {
+      var id = new mongoose.Types.ObjectId();
+      var doc = new this.SerializationChild1({
+        context_type: 'FunnyCased',
+        context_id: id
+      });
+
+      doc.toJSON().should.eql({ funny_cased: id, _id: doc._id });
+    });
+
+    it('serializes with camel case if specified', function() {
+      var id = new mongoose.Types.ObjectId();
+      var doc = new this.SerializationChild2({
+        context_type: 'WeirdUpperCase',
+        context_id: id
+      });
+
+      doc.toJSON().should.eql({ weirdUpperCase: id, _id: doc._id });
+    });
+  });
+
   describe('.serialize(obj, camel_case)', function() {
     it('gets exposed', function() {
       should.exist(serialization.serialize);

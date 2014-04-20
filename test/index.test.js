@@ -1,5 +1,5 @@
-'use strict'; /* global describe, it, before, after */
-/**
+'use strict'; /* global describe, it, before */
+/*!
  * Dependencies
  * --------------------------------------------------------------------------*/
 
@@ -8,127 +8,62 @@ var _        = require('lodash'),
     mongoose = require('mongoose'),
     context  = require('..');
 
-var info = {};
+var Schema = mongoose.Schema;
+var makeStub = require('./helper').makeStub;
 
 describe('mongoose-context-ref', function() {
-  before(function() {
-    mongoose.connect('mongodb://localhost/test');
-  });
-
   before(function() {
     var CommentSchema = new mongoose.Schema({
       comments: [mongoose.Schema.ObjectId]
     });
     CommentSchema.plugin(context);
-    info.Comment = mongoose.model('Comment', CommentSchema);
+    this.Comment = mongoose.model('Comment', CommentSchema);
 
     var PostSchema = new mongoose.Schema({
       comments: [mongoose.Schema.ObjectId]
     });
-    info.Post = mongoose.model('Post', PostSchema);
-
-    var Comment2Schema = new mongoose.Schema({});
-    Comment2Schema.plugin(context, {
-      context_types: ['Post'],
-      serialize: false
-    });
-    info.Comment2 = mongoose.model('Comment2', Comment2Schema);
-
-    var Comment3Schema = new mongoose.Schema({});
-    Comment3Schema.plugin(context, {
-      context_types: function(ct) { return ct && (ct.charAt(0) !== 'C'); }
-    });
-    info.Comment3 = mongoose.model('Comment3', Comment3Schema);
+    this.Post = mongoose.model('Post', PostSchema);
   });
 
   it('adds the context paths to the schema', function() {
-    should.exist(info.Comment.schema.path('context_id'));
-    should.exist(info.Comment.schema.path('context_type'));
+    var schema = new Schema({});
+    schema.plugin(context);
+    should.exist(schema.path('context_id'));
+    should.exist(schema.path('context_type'));
   });
 
-  describe('.toJSON', function() {
-    var called = false;
+  function testNotAdded(name, options) {
+    var test_case = _.map(options, function(value, key) {
+      return key + ' is set to ' + value;
+    }, "").join(' and ');
 
-    before(function() {
-      var schema = new mongoose.Schema({});
-      schema.methods.toJSON = function() {
-        called = true; return this.toObject();
-      };
-      schema.plugin(context, {});
+    describe('when ' + test_case, function() {
+      makeStub(name + '$add', context[name], 'add');
 
-      info.ToJsonChild = mongoose.model('ToJsonChild', schema);
-    });
-
-    before(function() {
-      var schema = new mongoose.Schema({});
-      schema.plugin(context, {
-        camel_case: true
-      });
-
-      info.ToJsonChild2 = mongoose.model('ToJsonChild2', schema);
-    });
-
-    it('doesn\'t overwrite existing modifications to `.toJSON`', function() {
-      var doc = new info.ToJsonChild();
-      doc.toJSON();
-      called.should.equal(true);
-    });
-
-    it('serializes the `context_type` and `context_id`', function() {
-      var id = new mongoose.Types.ObjectId();
-      var doc = new info.ToJsonChild({
-        context_type: 'FunnyCased',
-        context_id: id
-      });
-
-      doc.toJSON().should.eql({
-        funny_cased: id,
-        _id: doc._id
+      it('doesn\'t add ' + name + ' to the schema', function() {
+        var schema = new mongoose.Schema();
+        schema.plugin(context, options);
+        this[name + '$add'].called.should.not.be.ok;
       });
     });
+  }
 
-    it('doesn\'t do anything if the `serialize` option is set to false', function() {
-      var id = new mongoose.Types.ObjectId();
-      var doc = new info.Comment2({
-        context_type: 'FunnyCased',
-        context_id: id
-      });
-
-      doc.toJSON().should.eql({
-        context_type: 'FunnyCased',
-        context_id: id,
-        _id: doc._id
-      });
-    });
-
-    it('serializes with camel case if specified', function() {
-      var id = new mongoose.Types.ObjectId();
-      var doc = new info.ToJsonChild2({
-        context_type: 'WeirdUpperCase',
-        context_id: id
-      });
-
-      doc.toJSON().should.eql({
-        weirdUpperCase: id,
-        _id: doc._id
-      });
-    });
-  });
-
-  describe('when options.refUpdate (as false) is passed', function() {
-    it('shouldn\'t add the ref-update hooks', function() {
-      var schema = new mongoose.Schema({});
-      schema.plugin(context, { refUpdate: false });
-      schema.callQueue.forEach(function(q) {
-        q.should.not.include('pre');
-        q.should.not.include('post');
-      });
-    });
-  });
+  testNotAdded('serialization', { serialize: false });
+  testNotAdded('virtuals',      { virtuals: false });
+  testNotAdded('updates',       { refUpdate: false });
 
   describe('when options.context_types is passed', function() {
+    before(function() {
+      var schema = new Schema({});
+      schema.plugin(context, {
+        context_types: ['Post'],
+        serialize: false
+      });
+      this.Comment2 = mongoose.model('Comment2', schema);
+    });
+
     it('validates `context_type` against the options', function(done) {
-      var comment = new info.Comment2({ context_type: 'Post' });
+      var comment = new this.Comment2({ context_type: 'Post' });
       comment.validate(function(err) {
         if(err) return done(err);
         comment.context_type = 'Comment';
@@ -140,185 +75,33 @@ describe('mongoose-context-ref', function() {
       });
     });
 
-    it('adds getters for the expected context_types\' paths', function() {
-      var comment = new info.Comment2({
-        context_type: 'Post',
-        context_id: new mongoose.Types.ObjectId()
-      });
-      comment.should.have.property('post');
-      comment.post.should.equal(comment.context_id);
-    });
-
-    it('adds setters for the expected context_types\' paths', function() {
-      var comment = new info.Comment2();
-      var id = new mongoose.Types.ObjectId();
-      comment.post = id;
-      comment.context_type.should.equal('Post');
-      comment.context_id.should.equal(id);
-    });
-
     describe('and virtuals is set to false', function() {
       it('doesn\'t mess with the schema\'s paths', function() {
-        var TestSchema = new mongoose.Schema({});
-        TestSchema.plugin(context, {
+        var schema = new Schema({});
+        schema.plugin(context, {
           virtuals: false,
           context_types: ['Post']
         });
-
-        should.not.exist(TestSchema.virtualpath('post'));
-      });
-    });
-
-    describe('and some of the `context_types`\' corresponding paths exist', function() {
-      it('ignores them', function() {
-        var TestSchema = new mongoose.Schema({
-          banana: mongoose.Schema.ObjectId,
-          post: mongoose.Schema.ObjectId
-        });
-        TestSchema.plugin(context, {
-          context_types: ['Post', 'Banana', 'Something']
-        });
-
-        should.not.exist(TestSchema.virtualpath('banana'));
-        should.not.exist(TestSchema.virtualpath('post'));
-        should.exist(TestSchema.virtualpath('something'));
+        should.not.exist(schema.virtualpath('post'));
       });
     });
 
     describe('and it\'s a function', function() {
+      before(function() {
+        var schema = new mongoose.Schema({});
+        schema.plugin(context, {
+          context_types: function(ct) { return ct && (ct.charAt(0) !== 'C'); }
+        });
+        this.Comment3 = mongoose.model('Comment3', schema);
+      });
+
       it('validates `context_types` by calling it as a predicate', function(done) {
-        var comment = new info.Comment3({ context_type: 'Comment' });
+        var comment = new this.Comment3({ context_type: 'Comment' });
         comment.validate(function(err) {
           should.exist(err);
           err.toString().should.match(/context type/);
           comment.context_type = 'Post';
           comment.validate(done);
-        });
-      });
-    });
-  });
-
-  describe('when a child is created', function() {
-    before(function(done) {
-      (new info.Post()).save(function(err, post) {
-        info.post = post;
-        done(err);
-      });
-    });
-
-    it('validates `context_type` against existing models', function(done) {
-      var comment = new info.Comment({ context_type: 'asdf' });
-      comment.validate(function(err) {
-        should.exist(err);
-        err.toString().should.match(/context type/);
-        done();
-      });
-    });
-
-    it('validates `context_id` existence', function(done) {
-      var comment = new info.Comment({
-        context_type: 'Post',
-        context_id: new mongoose.Types.ObjectId()
-      });
-
-      comment.save(function(err) {
-        should.exist(err);
-        err.message.should.match(/Post not found/);
-        done();
-      });
-    });
-
-    it('updates its parent\'s child references', function(done) {
-      var comment = new info.Comment({
-        context_id: info.post._id,
-        context_type: 'Post'
-      });
-
-      comment.save(function(err, comment) {
-        if(err) return done(err);
-        info.comment = comment;
-
-        info.Post.findById(info.post._id, function(err, post) {
-          if(err) return done(err);
-          should.exist(post);
-          post.should.have.property('comments');
-          post.comments.should.have.length(1);
-          _.invoke(post.comments, 'toString').should.include(comment.id);
-          done();
-        });
-      });
-    });
-  });
-
-  describe('when the child changes', function() {
-    before(function() {
-      var ChangeFirstParentSchema = new mongoose.Schema({
-        comments: [mongoose.Schema.ObjectId]
-      });
-
-      info.ChangeFirstParent = mongoose.model('ChangeFirstParent',
-                                              ChangeFirstParentSchema);
-
-      var ChangeSecondParentSchema = new mongoose.Schema({
-        comments: [mongoose.Schema.ObjectId]
-      });
-
-      info.ChangeSecondParent = mongoose.model('ChangeSecondParent',
-                                               ChangeSecondParentSchema);
-    });
-
-    before(function(done) {
-      new info.ChangeFirstParent().save(function(err, doc) {
-        info.first_parent = doc;
-        done(err);
-      });
-    });
-
-    before(function(done) {
-      new info.ChangeSecondParent().save(function(err, doc) {
-        info.second_parent = doc;
-        done(err);
-      });
-    });
-
-    before(function(done) {
-      new info.Comment({
-        context_type: 'ChangeFirstParent',
-        context_id: info.first_parent._id
-      }).save(function(err, comment) {
-        if(err) return done(err);
-        info.change_comment = comment;
-
-        comment.context_type = 'ChangeSecondParent';
-        comment.context_id = info.second_parent._id;
-        comment.save(done);
-      });
-    });
-
-    after(function(done) {
-      info.change_comment.remove(done);
-    });
-
-    it('removes its first parent\'s child reference', function(done) {
-      info.ChangeFirstParent.findById(info.first_parent._id, function(err, doc) {
-        if(err) return done(err);
-        should.exist(doc);
-        _.invoke(doc.comments, 'toString')
-          .should.not.include(info.change_comment.id);
-        done();
-      });
-    });
-  });
-
-  describe('when a child is removed', function() {
-    it('updates its parent\'s child references', function(done) {
-      info.comment.remove(function(err) {
-        if(err) return done(err);
-        info.Post.findById(info.post._id, function(err, post) {
-          if(err) return done(err);
-          post.should.have.property('comments');
-          post.comments.should.have.length(0);
-          done();
         });
       });
     });
