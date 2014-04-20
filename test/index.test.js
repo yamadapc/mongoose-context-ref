@@ -32,6 +32,20 @@ describe('mongoose-context-ref', function() {
     should.exist(schema.path('context_type'));
   });
 
+  it('validates `context_type` against the registered models', function(done) {
+    var comment = new this.Comment({
+      context_type: 'asdf',
+      context_id: new mongoose.Types.ObjectId()
+    });
+
+    comment.validate(function(err) {
+      should.exist(err);
+      err.toString().should.match(/context type/);
+      comment.context_type = 'Post';
+      comment.validate(done);
+    });
+  });
+
   function testNotAdded(name, options) {
     var test_case = _.map(options, function(value, key) {
       return key + ' is set to ' + value;

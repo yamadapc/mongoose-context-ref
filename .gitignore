@@ -7,11 +7,6 @@ lib-cov
 *.pid
 *.gz
 
-pids
-logs
-results
-
-testing_creds.json
-
+coverage.html
 npm-debug.log
 node_modules

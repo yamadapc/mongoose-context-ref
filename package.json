@@ -21,7 +21,14 @@
     }
   ],
   "scripts": {
-    "test": "grunt --verbose"
+    "test": "grunt --verbose",
+    "coverage": "mocha -t 0 --require blanket -R html-cov test/*.test.js > coverage.html"
+  },
+  "config": {
+    "blanket": {
+      "data-cover-never": "node_modules",
+      "pattern": ["lib/"]
+    }
   },
   "devDependencies": {
     "should": "~3.2.0",
@@ -31,6 +38,7 @@
     "grunt-contrib-watch": "~0.6.1",
     "time-grunt": "~0.3.1",
     "mongoose": "^3.8.8",
-    "lodash": "^2.4.1"
+    "lodash": "^2.4.1",
+    "blanket": "1.1.6"
   }
 }

@@ -46,6 +46,14 @@ describe('virtuals', function() {
       comment.post.should.equal(comment.context_id);
     });
 
+    it('returns undefined if the context is accessed wrongly', function() {
+      var comment = new this.VirtualsChild({
+        context_type: 'Post',
+        context_id: new mongoose.Types.ObjectId()
+      });
+      should.equal(comment.something, undefined);
+    });
+
     it('adds setters for the expected context_types\' paths', function() {
       var comment = new this.VirtualsChild();
       var id = new mongoose.Types.ObjectId();

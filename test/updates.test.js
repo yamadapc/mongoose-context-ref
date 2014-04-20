@@ -34,7 +34,7 @@ describe('updates', function() {
   });
 
   describe('.add(schema, normalize)', function() {
-    describe('when saving a new document with a context', function() {
+    describe('when saving a new document', function() {
       makeStub('refUpdate', updates, 'refUpdate',
               function(method, path, doc, cb) { cb(); });
 
@@ -123,7 +123,7 @@ describe('updates', function() {
       });
     });
 
-    describe('when removing a document with a context', function() {
+    describe('when removing a document', function() {
       makeStub('refUpdate', updates, 'refUpdate',
               function(method, path, doc, cb) { cb(); });
 
@@ -145,13 +145,13 @@ describe('updates', function() {
           context_id:   id
         });
 
-        child.save(function(err) {
+        child.remove(function(err) {
           if(err) return done(err);
 
           _this.refUpdate.calledOnce.should.be.ok;
           var call = _this.refUpdate.getCall(0);
           var args = call.args;
-          args[0].should.equal('save');
+          args[0].should.equal('remove');
           // note the inflection happening here
           args[1].should.equal('normalized-updateschild' + 's');
           args[2].should.equal(child);

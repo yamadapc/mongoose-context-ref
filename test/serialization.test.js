@@ -108,4 +108,12 @@ describe('serialization', function() {
       serialization.snakelize('SomethingBlehasdf').should.equal('something_blehasdf');
     });
   });
+
+  describe('.snakeToUpper(str)', function() {
+    it('converts snake \'char breaks\' into uppercase', function() {
+      serialization.snakeToUpper('_c').should.equal('C');
+      serialization.snakeToUpper('_s').should.equal('S');
+      serialization.snakeToUpper('_F').should.equal('F');
+    });
+  });
 });
