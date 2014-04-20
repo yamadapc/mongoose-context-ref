@@ -5,7 +5,12 @@
   "description": "A mongoose plugin which adds a simple `context` or `parent` like relation between a model's document and variable model parent document",
   "homepage": "https://github.com/yamadapc/mongoose-context-ref",
   "bugs": "https://github.com/yamadapc/mongoose-context-ref/issues",
-  "keywords": [ "mongoose", "context", "references", "relations" ],
+  "keywords": [
+    "mongoose",
+    "context",
+    "references",
+    "relations"
+  ],
   "author": {
     "name": "Pedro Tacla Yamada",
     "email": "tacla.yamada@gmail.com",
@@ -27,7 +32,9 @@
   "config": {
     "blanket": {
       "data-cover-never": "node_modules",
-      "pattern": ["lib/"]
+      "pattern": [
+        "lib/"
+      ]
     }
   },
   "devDependencies": {
@@ -39,6 +46,7 @@
     "time-grunt": "~0.3.1",
     "mongoose": "^3.8.8",
     "lodash": "^2.4.1",
-    "blanket": "1.1.6"
+    "blanket": "1.1.6",
+    "sinon": "~1.9.1"
   }
 }
