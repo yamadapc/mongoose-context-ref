@@ -123,6 +123,74 @@ describe('updates', function() {
       });
     });
 
+    describe('when changing a document\'s context_id to null', function() {
+      makeStub('refUpdate', updates, 'refUpdate',
+              function(method, path, ct, ci, doc, cb) {
+                if(!doc) cb = ci;
+                cb();
+              });
+
+      before(function(done) {
+        var _this = this;
+
+        this.old_context_id = this.child.context_id;
+        this.child.context_id = null;
+
+        this.child.save(function(err, doc) {
+          _this.child = doc;
+          done(err);
+        });
+      });
+
+      it('calls `refUpdate` in order to pull this child from its old parent', function() {
+        var call = _.find(this.refUpdate.getCalls(), function(call) {
+          return call.args[0] === 'remove';
+        });
+
+        should.exist(call);
+        var args = call.args;
+        // note the inflection happening here
+        args.length.should.equal(6);
+        args[1].should.equal('normalized-updateschild' + 's');
+        args[2].should.equal('UpdatesParent');
+        args[3].should.equal(this.old_context_id);
+      });
+    });
+
+    describe('when changing a document with context_id equals null', function() {
+      makeStub('refUpdate', updates, 'refUpdate',
+              function(method, path, ct, ci, doc, cb) {
+                if(!doc) cb = ci;
+                cb();
+              });
+
+      before(function(done) {
+        var _this = this;
+
+        this.child._original.context_id = null;
+        this.child.context_id = new mongoose.Types.ObjectId();
+        this.new_context_id = this.child.context_id;
+
+        this.child.save(function(err, doc) {
+          _this.child = doc;
+          done(err);
+        });
+      });
+
+      it('calls `refUpdate` in order to push this child to its new parent', function() {
+        var call = _.find(this.refUpdate.getCalls(), function(call) {
+          return call.args[0] === 'save';
+        });
+
+        should.exist(call);
+        var args = call.args;
+        // note the inflection happening here
+        args.length.should.equal(4);
+        args[1].should.equal('normalized-updateschild' + 's');
+        args[2].should.equal(this.child);
+      });
+    });
+
     describe('when removing a document', function() {
       makeStub('refUpdate', updates, 'refUpdate',
               function(method, path, doc, cb) { cb(); });
