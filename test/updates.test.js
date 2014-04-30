@@ -109,7 +109,7 @@ describe('updates', function() {
         args[3].should.equal(this.old_context_id);
       });
 
-      it('calls `refUpdate` in order to pull this child from its old parent', function(done) {
+      it('calls `refUpdate` in order to push this child to its new parent', function(done) {
         var call = _.find(this.refUpdate.getCalls(), function(call) {
           return call.args[0] === 'save';
         });
