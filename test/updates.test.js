@@ -162,6 +162,24 @@ describe('updates', function() {
   });
 
   describe('.refUpdate(method, path, doc, cb)', function() {
+    describe('when the context_id is null', function() {
+      makeStub('findByIdAndUpdate', 'UpdatesParent', 'findByIdAndUpdate',
+              function(id, update, cb) { cb(null); });
+
+      it('doesn\'t try updating the references', function(done) {
+        var child = new this.UpdatesChild({
+          context_type: 'UpdatesParent',
+          context_id: null
+        });
+
+        var _this = this;
+        updates.refUpdate('save', 'updates_childs', child, function(err) {
+          _this.findByIdAndUpdate.called.should.not.be.ok;
+          done(err);
+        });
+      });
+    });
+
     describe('when the parent doesn\'t exist', function() {
       makeStub('findByIdAndUpdate', 'UpdatesParent', 'findByIdAndUpdate',
               function(id, update, cb) { cb(null/* I'm not a doc */); });
