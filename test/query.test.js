@@ -3,13 +3,60 @@
  * Dependencies
  * --------------------------------------------------------------------------*/
 
-var should   = require('should'),
-    query    = require('..').query;
+var mongoose      = require('mongoose'),
+    should        = require('should'),
+    helper        = require('./helper'),
+    serialization = require('..').serialization,
+    query         = require('..').query;
+
+var Schema = mongoose.Schema;
 
 describe('query', function() {
   it('gets exposed', function() { should.exist(query); });
 
-  describe('.add(schema)', function() {
+  describe('.add(schema, normalize, validator)', function() {
+    it('adds a `withContext` static method to the `schema`', function() {
+      var mock_schema = { statics: {} };
+      query.add(mock_schema, function() {}, function() {});
+
+      should.exist(mock_schema.statics.withContext);
+      mock_schema.statics.withContext.should.be.instanceof(Function);
+    });
+
+    before(function() {
+      var QueryChildSchema = new Schema({});
+      query.add(QueryChildSchema, serialization.snakelize, function(model) {
+        return model === 'QueryChild';
+      });
+
+      this.QueryChild = mongoose.model('QueryChild', QueryChildSchema);
+      this.QueryChildOther = mongoose.model('QueryChildOther', new Schema({}));
+    });
+
+    helper.makeStub('find', 'QueryChild', 'find');
+
+    it('adds a function which queries for seriliazed contexts', function() {
+      this.QueryChild.withContext({
+        query_child: 'something'
+      });
+
+      this.find.calledOnce.should.be.ok;
+      this.find.getCall(0).args[0].should.eql({
+        context_type: 'QueryChild',
+        context_id: 'something'
+      });
+    });
+
+    it('ignores model names which don\'t validate', function() {
+      this.QueryChild.withContext({
+        query_child_other: 'something'
+      });
+
+      this.find.calledTwice.should.be.ok;
+      this.find.getCall(1).args[0].should.eql({
+        query_child_other: 'something'
+      });
+    });
   });
 
   describe('.withContext(model, query, id)', function() {
@@ -37,7 +84,7 @@ describe('query', function() {
         mockModel();
 
         it('calls `model.find` with a serialized query', function() {
-          var mockFilter = function(names) { return names; };
+          var mockFilter = function() { return ['query_parent']; };
 
           query.withContext(mockFilter, this.mock_model, {
             query_parent: 'something'
