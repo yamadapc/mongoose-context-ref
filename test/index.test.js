@@ -65,6 +65,7 @@ describe('mongoose-context-ref', function() {
   testNotAdded('serialization', { serialize: false });
   testNotAdded('virtuals',      { virtuals: false });
   testNotAdded('updates',       { refUpdate: false });
+  testNotAdded('query',         { query: false });
 
   describe('when options.context_types is passed', function() {
     before(function() {
