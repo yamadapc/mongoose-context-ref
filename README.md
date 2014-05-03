@@ -125,6 +125,30 @@ comment.toObject()
 // => { context_type: 'Post', context_id: ObjectId(...
 ```
 
+## Queries
+
+`mongoose-context-ref` adds a `withContext` static method to its target Schemas.
+This method, provides an overloaded `.find` method, which is able to parse out
+serialized contexts into their `context_type && context_id` representations.
+
+```javascript
+Comment.withContext({
+  post: '532280fcfed4c6f00d0dce63'
+});
+```
+This will return a mongoose.Query object, equivalent to calling:
+```javascript
+Comment.find({
+  context_type: 'Post',
+  context_id: '532280fcfed4c6f00d0dce63'
+});
+```
+
+Note that all the case serialization, and `context_type` validation logic, still
+applies when it's parsing contexts. It won't, for instance, detect camel case
+fields, if the plugin was added with snake case, and it will ignore invalid
+context types.
+
 ## Options
 
 As per mongoose plugins' convention, the plugin is added to a Model with:
@@ -149,6 +173,7 @@ Where `options` may have the fields:
 - `camel_case` - if set to true this will make serialization, reference paths
   and virtual properties use camel case, instead of snake case.
 - `serialize` - if set to false disables the [serialization feature](#serialization)
+- `query` - if set to false disables the [query feature](#query)
 
 ## Testing
 Tests may be run with: `grunt test`.
