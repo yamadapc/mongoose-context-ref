@@ -10,3 +10,4 @@ lib-cov
 coverage.html
 npm-debug.log
 node_modules
+lcov
