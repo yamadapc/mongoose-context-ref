@@ -3,6 +3,7 @@ mongoose-context-ref
 
 [![Build Status](https://secure.travis-ci.org/yamadapc/mongoose-context-ref.png?branch=master)](http://travis-ci.org/yamadapc/mongoose-context-ref)
 [![Code Climate](https://codeclimate.com/github/yamadapc/mongoose-context-ref.png)](https://codeclimate.com/github/yamadapc/mongoose-context-ref)
+[![Coverage Status](https://coveralls.io/repos/yamadapc/mongoose-context-ref/badge.png?branch=master)](https://coveralls.io/r/yamadapc/mongoose-context-ref?branch=master)
 [![Dependency Status](https://david-dm.org/yamadapc/mongoose-context-ref.png)](https://david-dm.org/yamadapc/mongoose-context-ref)
 [![devDependency Status](https://david-dm.org/yamadapc/mongoose-context-ref/dev-status.png)](https://david-dm.org/yamadapc/mongoose-context-ref#info=devDependencies)
 
