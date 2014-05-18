@@ -9,7 +9,7 @@ var _        = require('lodash'),
     updates  = require('..').updates;
 
 var Schema = mongoose.Schema;
-var makeStub = require('./helper').makeStub;
+var makeStub = require('mocha-make-stub');
 
 describe('updates', function() {
   before(function() { mongoose.connect('mongodb://localhost/test'); });

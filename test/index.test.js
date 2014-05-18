@@ -9,7 +9,7 @@ var _        = require('lodash'),
     context  = require('..');
 
 var Schema = mongoose.Schema;
-var makeStub = require('./helper').makeStub;
+var makeStub = require('mocha-make-stub');
 
 describe('mongoose-context-ref', function() {
   before(function() {

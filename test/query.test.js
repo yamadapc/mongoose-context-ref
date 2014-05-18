@@ -5,7 +5,7 @@
 
 var mongoose      = require('mongoose'),
     should        = require('should'),
-    helper        = require('./helper'),
+    makeStub      = require('mocha-make-stub'),
     serialization = require('..').serialization,
     query         = require('..').query;
 
@@ -33,7 +33,7 @@ describe('query', function() {
       this.QueryChildOther = mongoose.model('QueryChildOther', new Schema({}));
     });
 
-    helper.makeStub('find', 'QueryChild', 'find');
+    makeStub('find', 'QueryChild', 'find');
 
     it('adds a function which queries for seriliazed contexts', function() {
       this.QueryChild.withContext({
