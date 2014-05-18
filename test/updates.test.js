@@ -34,6 +34,8 @@ describe('updates', function() {
   });
 
   describe('.add(schema, normalize)', function() {
+    var parent_less_child, child;
+
     describe('when saving a new document', function() {
       makeStub('refUpdate', updates, 'refUpdate',
               function(method, path, doc, cb) { cb(); });
@@ -44,7 +46,7 @@ describe('updates', function() {
 
         child.save(function(err, doc) {
           if(err) return done(err);
-          _this.parent_less_child = doc;
+          parent_less_child = doc;
 
           _this.refUpdate.called.should.not.be.ok;
           done();
@@ -54,14 +56,14 @@ describe('updates', function() {
       it('calls `refUpdate` in order to push this child into its parent', function(done) {
         var _this = this;
         var id = new mongoose.Types.ObjectId();
-        var child = new this.UpdatesChild({
+        var c = new this.UpdatesChild({
           context_type: 'UpdatesParent',
           context_id:   id
         });
 
-        child.save(function(err, doc) {
+        c.save(function(err, doc) {
           if(err) return done(err);
-          _this.child = doc;
+          child = doc;
 
           _this.refUpdate.calledOnce.should.be.ok;
           var call = _this.refUpdate.getCall(0);
@@ -69,7 +71,7 @@ describe('updates', function() {
           args[0].should.equal('save');
           // note the inflection happening here
           args[1].should.equal('normalized-updateschild' + 's');
-          args[2].should.equal(child);
+          args[2].should.equal(c);
           done();
         });
       });
@@ -83,14 +85,12 @@ describe('updates', function() {
               });
 
       before(function(done) {
-        var _this = this;
-
-        this.old_context_id = this.child.context_id;
+        this.old_context_id = child.context_id;
         this.new_context_id = new mongoose.Types.ObjectId();
-        this.child.context_id = this.new_context_id;
+        child.context_id = this.new_context_id;
 
-        this.child.save(function(err, doc) {
-          _this.child = doc;
+        child.save(function(err, doc) {
+          child = doc;
           done(err);
         });
       });
@@ -131,13 +131,11 @@ describe('updates', function() {
               });
 
       before(function(done) {
-        var _this = this;
+        this.old_context_id = child.context_id;
+        child.context_id = null;
 
-        this.old_context_id = this.child.context_id;
-        this.child.context_id = null;
-
-        this.child.save(function(err, doc) {
-          _this.child = doc;
+        child.save(function(err, doc) {
+          child = doc;
           done(err);
         });
       });
@@ -165,14 +163,12 @@ describe('updates', function() {
               });
 
       before(function(done) {
-        var _this = this;
+        child._original.context_id = null;
+        child.context_id = new mongoose.Types.ObjectId();
+        this.new_context_id = child.context_id;
 
-        this.child._original.context_id = null;
-        this.child.context_id = new mongoose.Types.ObjectId();
-        this.new_context_id = this.child.context_id;
-
-        this.child.save(function(err, doc) {
-          _this.child = doc;
+        child.save(function(err, doc) {
+          child = doc;
           done(err);
         });
       });
@@ -187,7 +183,7 @@ describe('updates', function() {
         // note the inflection happening here
         args.length.should.equal(4);
         args[1].should.equal('normalized-updateschild' + 's');
-        args[2].should.equal(this.child);
+        args[2].should.equal(child);
       });
     });
 
@@ -198,7 +194,7 @@ describe('updates', function() {
       it('skips all hooks if there\'s no context', function(done) {
         var _this = this;
 
-        this.parent_less_child.remove(function(err) {
+        parent_less_child.remove(function(err) {
           if(err) return done(err);
           _this.refUpdate.called.should.not.be.ok;
           done();
