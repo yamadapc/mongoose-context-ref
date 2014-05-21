@@ -113,6 +113,40 @@ describe('query', function() {
           });
         });
       });
+
+      describe('when the `filter` function uses the context', function() {
+        function validator(value) {
+          /* jshint validthis: true */
+          var connection = this.constructor.db;
+          var models = require('..').utils.getModelNames(connection);
+
+          return !!value && (models.indexOf(value) !== -1);
+        }
+
+        mockModel();
+
+        it('calls `model.find` with a serialized query', function() {
+          var _this = this;
+
+          var filter = function(names, ctx) {
+            ctx.should.have.property('constructor');
+            ctx.constructor.should.equal(_this.mock_model);
+            return names
+              .filter(validator.bind(ctx))
+              .map(serialization.snakelize);
+          };
+
+          query.withContext(filter, this.mock_model, {
+            'query_parent': 'something'
+          });
+
+          this.called.should.be.ok;
+          this.calledArgs[0].should.eql({
+            context_type: 'QueryParent',
+            context_id: 'something'
+          });
+        });
+      });
     });
   });
 });
