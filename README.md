@@ -6,7 +6,7 @@ mongoose-context-ref
 [![Coverage Status](https://coveralls.io/repos/yamadapc/mongoose-context-ref/badge.png?branch=master)](https://coveralls.io/r/yamadapc/mongoose-context-ref?branch=master)
 [![Dependency Status](https://david-dm.org/yamadapc/mongoose-context-ref.png)](https://david-dm.org/yamadapc/mongoose-context-ref)
 [![devDependency Status](https://david-dm.org/yamadapc/mongoose-context-ref/dev-status.png)](https://david-dm.org/yamadapc/mongoose-context-ref#info=devDependencies)
-
+[![Analytics](https://ga-beacon.appspot.com/UA-54450544-1/mongoose-context-ref/README)](https://github.com/igrigorik/ga-beacon)
 ---
 
 *Mongoose context ref* is a [mongoose](https://github.com/learnboost/mongoose)
