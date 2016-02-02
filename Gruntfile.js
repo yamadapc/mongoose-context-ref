@@ -5,7 +5,7 @@ module.exports = function (grunt) {
   require('time-grunt')(grunt);
 
   require('blanket')({
-    data_cover_never: ['oss'],
+    'data-cover-never': ['node_modules', 'oss'],
     pattern: 'lib'
   });
 
